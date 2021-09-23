@@ -1,5 +1,7 @@
 <?php namespace Codecycler\SURFconext;
 
+use Event;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer;
 use Lcobucci\Clock\Clock;
@@ -13,6 +15,7 @@ use Codecycler\SURFconext\Classes\KeysFetcher;
 use Codecycler\SURFconext\Classes\TokenStorage;
 use Codecycler\SURFconext\Classes\TokenRefresher;
 use Lcobucci\JWT\Validation\Validator as JWTValidator;
+use Codecycler\SURFconext\Classes\Extend\RainLabUser;
 use Codecycler\SURFconext\Classes\Contract\JSONGetter;
 use Codecycler\SURFconext\Classes\Contract\JSONPoster;
 use Codecycler\SURFconext\Classes\Contract\Authenticator;
@@ -27,7 +30,7 @@ use Codecycler\SURFconext\Classes\Adapter\NullAuthenticatorAdapter;
 class Plugin extends PluginBase
 {
     public $require = [
-        'Codecycler.Socialite',
+        'RainLab.User',
     ];
 
     /**
@@ -112,6 +115,8 @@ class Plugin extends PluginBase
 
     public function boot()
     {
+        Event::subscribe(RainLabUser::class);
+
         $socialite = $this->app->make(SocialiteFactory::class);
 
         $socialite->extend('surfconext', function ($app) {
@@ -123,6 +128,7 @@ class Plugin extends PluginBase
                 config('codecycler.surfconext::config.redirect'),
                 config('codecycler.surfconext::config.auth'),
                 config('codecycler.surfconext::config.token'),
+                config('codecycler.surfconext::config.introspect'),
             );
         });
     }

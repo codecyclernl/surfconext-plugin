@@ -2,10 +2,17 @@
     "name": "codecycler/surfconext-plugin",
     "type": "october-plugin",
     "description": "No description provided yet...",
+    "authors": [
+        {
+            "name": "Sebastiaan Kloos",
+            "email": "sebastiaan@codecycler.dev"
+        }
+    ],
     "require": {
         "composer/installers": "~1.0",
         "lcobucci/jwt": "^4.1",
         "lcobucci/jose-parsing": "dev-master",
-        "codecycler/socialite-plugin": "dev-main"
+        "laravel/socialite": "^5.2",
+        "rainlab/user-plugin": ">=v1.6.0"
     }
 }

@@ -1,6 +1,8 @@
 <?php namespace Codecycler\SURFconext\Http\Controllers;
 
+use Session;
 use Illuminate\Http\Request;
+use RainLab\User\Facades\Auth;
 use Illuminate\Routing\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use Codecycler\SURFconext\Classes\TokenStorage;
@@ -14,32 +16,37 @@ class AuthController extends Controller
 
     public function callback(Request $request, TokenStorage $storage)
     {
-        $user = \Socialite::with('surfconext')->stateless()->user();
+        $surfUser = \Socialite::with('surfconext')->stateless()->user();
 
-        /**
-         * SURFconext does not support refresh tokens at this time. Just increase the access token lifetime if needed.
-         */
-        /*if (!$storage->saveRefresh($user['sub'], $user['iss'], $user->refreshToken)) {
-            throw new TokenStorageException("Failed to save refresh token");
-        }*/
-
-        ray($user);
-
-        /*// Authenticate the user
-        $user = \RainLab\User\Models\User::findByEmail($user->getEmail());
+        // Authenticate the user
+        $user = \RainLab\User\Models\User::findByEmail($surfUser->getEmail());
 
         if (!$user) {
-            $user = \RainLab\User\Models\User::create($data);
-        }*/
+            $data = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'surname' => $user->surname,
+                'username' => $user->email,
+            ];
 
-        return [
-            'name' => $user->getName(),
-            'email' => $user->getEmail(),
-            'token' => $user->token,
-        ];
+            $user = \RainLab\User\Models\User::create($data);
+        }
+
+        // Create new token
+        $user->createSurfConextToken($surfUser);
+
+        Auth::loginUsingId($user->id);
+
+        $request->session()->save();
+
+        return redirect('https://surfconext.share.codecycler.dev/surfconext/user/test');
     }
 
-    public function refresh()
+    public function user()
     {
+        $accessToken = Session::get('surfconext_access_token');
+
+        //
+        ray(\Socialite::with('surfconext')->stateless()->userInfo($accessToken));
     }
 }

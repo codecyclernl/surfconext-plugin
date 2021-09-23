@@ -23,6 +23,8 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
 
     protected $tokenUrl;
 
+    protected $introspectUrl;
+
     public function __construct(
         Request $request,
         Parser $parser,
@@ -30,13 +32,15 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
         string $clientSecret,
         string $redirectUrl,
         string $authUrl,
-        string $tokenUrl
+        string $tokenUrl,
+        string $introspectUrl
     ) {
         parent::__construct($request, $clientId, $clientSecret, $redirectUrl);
 
         $this->parser = $parser;
         $this->authUrl = $authUrl;
         $this->tokenUrl = $tokenUrl;
+        $this->introspectUrl = $introspectUrl;
 
         $this->parameters = [
             'claims' => json_encode([
@@ -65,6 +69,8 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
         $token = $response['id_token'];
 
         $user = $this->mapUserToObject($this->getUserByToken($token));
+
+        $user->access_token = $response['access_token'];
 
         if (!$user) {
             // Create new user
@@ -115,6 +121,8 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
             'scope' => implode(' ', $this->scopes),
             'redirect_uri' => $this->redirectUrl,
             'grant_type' => 'authorization_code',
+            'response_type' => 'code',
+            'response_mode' => 'query',
         ];
     }
 
@@ -126,6 +134,11 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
     protected function getTokenUrl()
     {
         return $this->tokenUrl;
+    }
+
+    protected function getIntrospectUrl()
+    {
+        return $this->introspectUrl;
     }
 
     /**
@@ -143,6 +156,37 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
                     'Accept' => 'application/json',
                 ],
                 'form_params' => $this->getTokenFields($code),
+            ],
+        );
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function introspect($token, $accessToken)
+    {
+        $response = $this->getHttpClient()->post($this->getIntrospectUrl(),
+            [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ],
+                'form_params' => [
+                    'token' => $accessToken,
+                ],
+            ],
+        );
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function userInfo($accessToken)
+    {
+        $response = $this->getHttpClient()->get(config('codecycler.surfconext::config.user_info'),
+            [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ],
             ],
         );
 
