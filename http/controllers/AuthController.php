@@ -1,8 +1,10 @@
 <?php namespace Codecycler\SURFconext\Http\Controllers;
 
 use Session;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
 use RainLab\User\Facades\Auth;
+use System\Classes\PluginManager;
 use Illuminate\Routing\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use Codecycler\SURFconext\Classes\TokenStorage;
@@ -16,30 +18,45 @@ class AuthController extends Controller
 
     public function callback(Request $request, TokenStorage $storage)
     {
-        $surfUser = \Socialite::with('surfconext')->stateless()->user();
+        $surfUser = Socialite::with('surfconext')->stateless()->user();
 
         // Authenticate the user
         $user = \RainLab\User\Models\User::findByEmail($surfUser->getEmail());
 
         if (!$user) {
+            $password = Uuid::uuid4();
+
             $data = [
-                'name' => $user->name,
-                'email' => $user->email,
-                'surname' => $user->surname,
-                'username' => $user->email,
+                'name' => $surfUser->name,
+                'email' => $surfUser->email,
+                'surname' => $surfUser->surname,
+                'username' => $surfUser->email,
+                'password' => $password,
+                'password_confirmation' => $password,
             ];
 
-            $user = \RainLab\User\Models\User::create($data);
+            $user = Auth::register($data, true);
         }
 
         // Create new token
         $user->createSurfConextToken($surfUser);
 
+        // Attach to team if plugin is intalled
+        if (PluginManager::instance()->exists('Codecycler.Teams')) {
+            $team = \Codecycler\Teams\Models\Team::where('surfconext_organisation', $surfUser->organisation)
+                ->first();
+
+            if ($team) {
+                $team->users()->add($user);
+            }
+        }
+
+
         Auth::loginUsingId($user->id);
 
         $request->session()->save();
 
-        return redirect('https://surfconext.share.codecycler.dev/surfconext/user/test');
+        return redirect('/');
     }
 
     public function user()
@@ -47,6 +64,6 @@ class AuthController extends Controller
         $accessToken = Session::get('surfconext_access_token');
 
         //
-        ray(\Socialite::with('surfconext')->stateless()->userInfo($accessToken));
+        return Socialite::with('surfconext')->stateless()->userInfo($accessToken);
     }
 }

@@ -2,3 +2,6 @@
 1.0.2:
   - Added the initial db tables
   - create_tokens_table.php
+1.0.3:
+  - Added migration for the LMS & teams plugin
+  - add_surfconext_organisation_to_teams_table.php

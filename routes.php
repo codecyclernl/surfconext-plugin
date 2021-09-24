@@ -11,9 +11,6 @@ Route::group([
     Route::get('/surfconext/auth/user', 'Codecycler\SURFconext\Http\Controllers\AuthController@user');
 
     Route::get('/surfconext/user/test', function () {
-        ray(Auth::getUser());
-        ray(\Session::all());
-
         return \Auth::getUser();
     });
 
