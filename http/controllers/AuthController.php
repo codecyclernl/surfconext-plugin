@@ -46,7 +46,7 @@ class AuthController extends Controller
             $team = \Codecycler\Teams\Models\Team::where('surfconext_organisation', $surfUser->organisation)
                 ->first();
 
-            if ($team) {
+            if ($team && !$team->users->contains($user)) {
                 $team->users()->add($user);
             }
         }
