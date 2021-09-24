@@ -150,4 +150,19 @@ class Plugin extends PluginBase
             LoginButton::class => 'SurfLoginButton',
         ];
     }
+
+    public function registerSettings()
+    {
+        return [
+            'settings' => [
+                'label'       => 'SURFconext Settings',
+                'description' => 'Manage SURFconext based settings.',
+                'category'    => 'LMS',
+                'icon'        => 'icon-cog',
+                'class'       => 'Codecycler\SURFconext\Models\Settings',
+                'order'       => 500,
+                'keywords'    => 'lms surfconext surf',
+            ]
+        ];
+    }
 }

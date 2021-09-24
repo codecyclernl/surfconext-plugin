@@ -1,0 +1,38 @@
+fields:
+  client_id:
+    label: Client ID
+    span: left
+    type: text
+  client_secret:
+    label: Client Secret
+    span: right
+    type: sensitive
+  redirect:
+    label: Redirect
+    span: left
+    type: text
+  auth:
+    label: Auth endpoint
+    span: left
+    type: text
+    default: https://connect.test.surfconext.nl/oidc/authorize
+  token:
+    label: Token endpoint
+    span: left
+    type: text
+    default: https://connect.test.surfconext.nl/oidc/token
+  keys:
+    label: Keys endpoint
+    span: left
+    type: text
+    default: https://connect.test.surfconext.nl/oidc/certs
+  user_info:
+    label: User info endpoint
+    span: left
+    type: text
+    default: https://connect.test.surfconext.nl/oidc/userinfo
+  introspect:
+    label: Introspect endpoint
+    span: left
+    type: text
+    default: https://connect.test.surfconext.nl/oidc/introspect
