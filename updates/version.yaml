@@ -8,3 +8,5 @@
 1.0.4:
   - Added is_created_by_surfconext to departments table
   - add_surfconext_to_departments_table.php
+1.0.5:
+  - Added SURFconext column to departments table

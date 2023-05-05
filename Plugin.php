@@ -1,5 +1,6 @@
 <?php namespace Codecycler\SURFconext;
 
+use Codecycler\SURFconext\Classes\Extend\LearnKitDepartments;
 use Event;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Parser;
@@ -127,6 +128,7 @@ class Plugin extends PluginBase
     {
         Event::subscribe(RainLabUser::class);
         Event::subscribe(CodecyclerTeams::class);
+        Event::subscribe(LearnKitDepartments::class);
 
         $socialite = $this->app->make(SocialiteFactory::class);
 
