@@ -1,5 +1,6 @@
 <?php namespace Codecycler\SURFconext\Http\Controllers;
 
+use LearnKit\LMS\Models\Department;
 use Session;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
@@ -51,6 +52,33 @@ class AuthController extends Controller
             }
         }
 
+        foreach ($surfUser->departments as $department) {
+            $departments = [];
+
+            $existingDepartment = Department::query()
+                ->where('name', $department)
+                ->first();
+
+            if (! filled($existingDepartment)) {
+                $existingDepartment = Department::create([
+                    'name' => $department,
+                    'team_id' => $team->id,
+                    'is_created_by_surfconext' => true,
+                ]);
+            }
+
+            $departments[] = $existingDepartment->id;
+        }
+
+        $notSurfDepartments = $user->departments()
+            ->where('is_created_by_surfconext', false)
+            ->get();
+
+        foreach ($notSurfDepartments as $notSurfDepartment) {
+            $departments[] = $notSurfDepartment->id;
+        }
+
+        $user->departments()->sync($departments);
 
         Auth::loginUsingId($user->id);
 

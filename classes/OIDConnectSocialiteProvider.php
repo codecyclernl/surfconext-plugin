@@ -49,6 +49,7 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
                     'given_name' => null,
                     'family_name' => null,
                     'schac_home_organization' => null,
+                    'ou' => null,
                 ],
             ]),
         ];
@@ -82,20 +83,6 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
             ->setExpiresIn(Arr::get($response, 'expires_in'));
     }
 
-    protected function mapUserToObject(array $user)
-    {
-        return (new User)->setRaw($user)->map([
-            'id' => $user['sub'],
-            'sub' => $user['sub'],
-            'iss' => $user['iss'],
-            'nickname' => $user['name'],
-            'name' => $user['name'],
-            'surname' => $user['surname'],
-            'email' => $user['email'],
-            'organisation' => $user['organisation'],
-        ]);
-    }
-
     protected function getUserByToken($token)
     {
         $plainToken = $this->parser->parse($token);
@@ -109,7 +96,23 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
             'surname' => $claims->get('family_name'),
             'email' => $claims->get('email'),
             'organisation' => $claims->get('schac_home_organization'),
+            'departments' => $this->getDepartments($claims->get('ou')) ?? [],
         ];
+    }
+
+    protected function mapUserToObject(array $user)
+    {
+        return (new User)->setRaw($user)->map([
+            'id' => $user['sub'],
+            'sub' => $user['sub'],
+            'iss' => $user['iss'],
+            'nickname' => $user['name'],
+            'name' => $user['name'],
+            'surname' => $user['surname'],
+            'email' => $user['email'],
+            'organisation' => $user['organisation'],
+            'departments' => $user['departments'],
+        ]);
     }
 
     protected function getTokenFields($code)
@@ -124,6 +127,19 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
             'response_type' => 'code',
             'response_mode' => 'query',
         ];
+    }
+
+    public function getDepartments($departments): array
+    {
+        if (is_array($departments)) {
+            return $departments;
+        }
+
+        try {
+            return json_decode($departments, true);
+        } catch (\Exception $exception) {}
+
+        return [$departments];
     }
 
     protected function getAuthUrl($state)

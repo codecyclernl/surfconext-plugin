@@ -9,10 +9,16 @@
         }
     ],
     "require": {
+        "ext-json": "*",
         "composer/installers": "~1.0",
         "lcobucci/jwt": "^4.1",
         "lcobucci/jose-parsing": "dev-master",
         "laravel/socialite": "^5.2",
         "rainlab/user-plugin": ">=v1.6.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
     }
 }

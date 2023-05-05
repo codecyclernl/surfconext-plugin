@@ -5,3 +5,6 @@
 1.0.3:
   - Added migration for the LMS & teams plugin
   - add_surfconext_organisation_to_teams_table.php
+1.0.4:
+  - Added is_created_by_surfconext to departments table
+  - add_surfconext_to_departments_table.php
