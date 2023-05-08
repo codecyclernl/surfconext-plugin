@@ -1,5 +1,6 @@
 <?php namespace Codecycler\SURFconext\Classes;
 
+use Illuminate\Support\Facades\Log;
 use Lcobucci\JWT\Parser;
 use Illuminate\Http\Request;
 use October\Rain\Support\Arr;
@@ -88,6 +89,8 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
         $plainToken = $this->parser->parse($token);
 
         $claims = $plainToken->claims();
+
+        Log::debug($claims->toString());
 
         return [
             'sub' => $claims->get('sub'),
