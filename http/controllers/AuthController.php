@@ -56,6 +56,7 @@ class AuthController extends Controller
             $departments = [];
 
             $existingDepartment = Department::query()
+                ->where('team_id', $team->id)
                 ->where('name', $department)
                 ->first();
 
