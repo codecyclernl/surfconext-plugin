@@ -135,8 +135,12 @@ class OIDConnectSocialiteProvider extends AbstractProvider implements ProviderIn
             return $departments;
         }
 
+        if (is_string($departments) && ! str_contains($departments, '"')) {
+            return [$departments];
+        }
+
         try {
-            return json_decode($departments, true);
+            return json_decode($departments, true) ?? [];
         } catch (\Exception $exception) {}
 
         return [$departments];
