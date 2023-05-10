@@ -52,9 +52,9 @@ class AuthController extends Controller
             }
         }
 
-        foreach ($surfUser->departments as $department) {
-            $departments = [];
+        $departments = [];
 
+        foreach ($surfUser->departments as $department) {
             $existingDepartment = Department::query()
                 ->where('team_id', $team->id)
                 ->where('name', $department)
